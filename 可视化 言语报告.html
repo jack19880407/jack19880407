@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TC-SVA言语障碍评估系统</title>
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #0056b3;
+            --background-color: #ffffff;
+            --card-background: #f8f9fa;
+            --text-color: #212529;
+            --border-color: #ced4da;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        #progress-container {
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+
+        #progress-bar {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        #progress {
+            background-color: white;
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        #progress-text {
+            display: block;
+            margin-top: 0.5rem;
+            color: white;
+        }
+
+        #page-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .content-card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+       textarea {
+    width: 80%; /* 缩小宽度到80% */
+    max-width: 600px; /* 设置最大宽度 */
+    min-height: 100px;
+    resize: vertical;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    margin: 0 auto; /* 居中显示 */
+    display: block; /* 确保margin: auto生效 */
+    text-align: center; /* 文字居中 */
+}
+
+        .checkbox-group {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .primary-button {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .secondary-button {
+            background-color: #f0f0f0;
+            color: var(--text-color);
+        }
+
+        .secondary-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+        }
+
+        .report-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .report-section p {
+            margin-bottom: 0.5rem;
+        }
+
+        @media print {
+    /* 确保背景颜色和其他样式在打印时显示 */
+    body {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    /* 示例：设置页面和元素的背景颜色 */
+    .colored-section {
+        background-color: #f0f0f0; /* 替换为你的背景颜色 */
+        color: #000; /* 设置文本颜色 */
+    }
+
+    /* 为需要颜色的元素定义样式 */
+    .highlight {
+        background-color: #ffdd57;
+        color: #333;
+    }
+}
+
+
+        @mediamedia (max-width: 600px) {
+            .content-card {
+                padding: 1rem;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+        }
+
+        nav {
+            background-color: #333;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #555;
+        }
+
+        nav a.active {
+            background-color: var(--primary-color);
+        }
+
+        .assessment-section {
+            margin-bottom: 2rem;
+        }
+
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .score-input {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .score-input input[type="range"] {
+            flex: 1;
+        }
+
+        .score-value {
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        .assessment-table th,
+        .assessment-table td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        .consonant-input, .vowel-input {
+            width: 100%;
+            padding: 0.25rem;
+        }
+
+        .assessment-section {
+    margin-bottom: 2rem;
+    display: block; /* 确保默认显示 */
+}
+
+/* 如果需要隐藏某个部分，可以通过JavaScript动态添加这个类 */
+.hidden {
+    display: none;
+}
+
+        .assessment-row {
+            margin-bottom: 1rem;
+        }
+
+        .movement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .small-input {
+            width: 60px;
+            padding: 0.25rem;
+        }
+
+        .medium-input {
+            width: 200px;
+            padding: 0.25rem;
+        }
+
+        .large-input {
+            width: 100%;
+            padding: 0.25rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .phoneme-assessment {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .phoneme-assessment select {
+            margin-left: 1rem;
+        }
+
+        .history-search {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .history-results {
+            margin-top: 1rem;
+        }
+
+        .history-item {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .history-item button {
+            margin-top: 0.5rem;
+        }
+
+        .assessment-buttons {
+    display: flex;
+    justify-content: center; /* 改为居中对齐 */
+    margin-top: 1rem;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TC-SVA言语障碍评估系统</h1>
+        <div id="progress-container">
+            <div id="progress-bar">
+                <div id="progress"></div>
+            </div>
+            <span id="progress-text">0%</span>
+        </div>
+    </header>
+
+    <nav class="no-print">
+        <ul>
+            <li><a href="#" onclick="showPage('start')" class="active">首页</a></li>
+            <li><a href="#" onclick="showPage('basic-info')">基本信息</a></li>
+            <li><a href="#" onclick="showPage('medical-history')">病史</a></li>
+            <li><a href="#" onclick="showPage('breathing')">呼吸功能</a></li>
+            <li><a href="#" onclick="showPage('oral-motor')">口部运动</a></li>
+            <li><a href="#" onclick="showPage('articulation')">构音功能</a></li>
+            <li><a href="#" onclick="showPage('voice-assessment')">嗓音评估</a></li>
+            <li><a href="#" onclick="showPage('report')">评估报告</a></li>
+        </ul>
+    </nav>
+
+    <main id="page-container">
+        <!-- Start Page -->
+        <div id="start" class="page active">
+            <div class="content-card">
+                <h2>欢迎使用TC-SVA言语障碍评估系统</h2>
+                <p>请点击下方按钮开始新的评估或查询历史评估记录。</p>
+                <div class="button-group">
+                    <button onclick="showPage('basic-info')" class="primary-button">开始新评估</button>
+                    <button onclick="showHistorySearch()" class="secondary-button">查询历史评估</button>
+                </div>
+            </div>
+            <div id="history-search" class="content-card hidden">
+                <h2>历史评估记录查询</h2>
+                <input type="text" id="search-input" placeholder="输入姓名或评估ID">
+                <button id="search-button" class="primary-button">查询</button>
+                <div id="search-results" class="history-results"></div>
+            </div>
+        </div>
+
+        <!-- Basic Information Page -->
+        <div id="basic-info" class="page">
+            <div class="content-card">
+                <h2>基本信息</h2>
+                <form id="basicInfoForm" onsubmit="saveBasicInfo(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">姓名</label>
+                            <input type="text" id="name" required pattern="\S+.*" title="请输入有效的姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">性别</label>
+                            <select id="gender" required>
+                                <option value="">请选择</option>
+                                <option value="male">男</option>
+                                <option value="female">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">年龄</label>
+                            <input type="number" id="age" min="0" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="birthdate">出生日期</label>
+                            <input type="date" id="birthdate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact">联系方式</label>
+                            <input type="text" id="contact" required pattern="\S+.*" title="请输入有效的联系方式">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">地址</label>
+                            <input type="text" id="address">
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="secondary-button" onclick="showPage('start')">返回</button>
+                        <button type="submit" class="primary-button">保存并继续</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Medical History Page -->
+        <div id="medical-history" class="page">
+            <div class="content-card">
+                <h2>病史</h2>
+                <form id="medicalHistoryForm" onsubmit="saveMedicalHistory(event)">
+                    <div class="form-group">
+                        <label for="problem-onset">言语/语言问题出现的时间</label>
+                        <textarea id="problem-onset" placeholder="描述大概年龄段"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="past-treatment">过去及当前的治疗历史</label>
+                        <textarea id="past-treatment" placeholder="描述治疗历史"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="medical-diagnosis">相关医学诊断</label>
+                        <textarea id="medical-diagnosis" placeholder="例如：自闭症、听力损失、脑损伤等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="previous-reports">之前的评估报告和测试结果</label>
+                        <textarea id="previous-reports" placeholder="描述评估报告和测试结果"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="development-milestones">早期发展里程碑</label>
+                        <textarea id="development-milestones" placeholder="描述爬、走、说话等里程碑"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="social-interaction">社交互动及行为观察</label>
+                        <textarea id="social-interaction" placeholder="描述社交互动情况"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="current-challenges">当前言语或语言问题</label>
+                        <textarea id="current-challenges" placeholder="例如：发音障碍、言语流畅性障碍等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="daily-communication">日常交流能力及挑战</label>
+                        <textarea id="daily-communication" placeholder="描述日常交流能力"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="treatment-goals">来访者及家属的治疗目标</label>
+                        <textarea id="treatment-goals" placeholder="描述短期和长期治疗计划"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="support-environment">家庭及教育环境支持</label>
+                        <textarea id="support-environment" placeholder="描述支持情况"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="family-teacher-feedback">家庭和教师的观察和意见</label>
+                        <textarea id="family-teacher-feedback" placeholder="描述观察和意见"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="educational-background">教育背景及学术表现</label>
+                        <textarea id="educational-background" placeholder="描述教育背景和学术表现"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="secondary-button" onclick="showPage('basic-info')">返回</button>
+                        <button type="submit" class="primary-button">继续评估</button>
+                        <button type="button" class="secondary-button" onclick="printMedicalHistory()">打印病史</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Breathing Function Page -->
+        <div id="breathing" class="page">
+            <div class="content-card">
+                <h2>呼吸功能</h2>
+                <form id="breathingForm" onsubmit="saveBreathing(event)">
+                    <div class="form-group">
+                        <label for="breathing-pattern">呼吸模式描述</label>
+                        <textarea id="breathing-pattern" placeholder="描述呼吸模式，如腹式呼吸、胸式呼吸等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="breath-control">呼吸支持能力（秒）</label>
+                        <input type="number" id="breath-control" min="0" max="120" placeholder="一口气持续平稳发a------时长">
+                    </div>
+                    <div class="form-group">
+                        <label for="breathing-coordination">呼吸与说话协调性</label>
+                        <textarea id="breathing-coordination" placeholder="描述呼吸与言语的协调情况"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cough-strength">咳嗽强度</label>
+                        <select id="cough-strength">
+                            <option value="">请选择</option>
+                            <option value="weak">弱</option>
+                            <option value="moderate">中等</option>
+                            <option value="strong">强</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="respiratory-symptoms">呼吸相关症状（如喘息、呼吸急促等）</label>
+                        <textarea id="respiratory-symptoms" placeholder="描述与呼吸相关的症状"></textarea>
+                    </div>
+                    <div class="button-group">
+                           <button type="submit" class="primary-button">继续评估</button>
+                        <button type="button" class="secondary-button" onclick="showPage('medical-history')">返回</button>
+                  
+                    </div>
+                </form>
+            </div>
+        </div>
+
+       <div id="oral-motor" class="page">
+    <div class="content-card">
+        <h2>口部运动</h2>
+        <form id="oralMotorForm" onsubmit="saveOralMotor(event)">
+            <!-- Jaw Assessment -->
+            <div id="jaw-assessment" class="assessment-section">
+                <h3>下颌功能评估</h3>
+                <div class="assessment-row">
+                    <label for="bite-strength">咬肌肌力：</label>
+                    <select id="bite-strength" name="bite-strength">
+                        <option value="normal">正常</option>
+                        <option value="weak">较弱</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label>模仿动作：</label>
+                    <div class="movement-grid">
+                        <div>
+                            上
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            下
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            左
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            右
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="assessment-row">
+                    <label for="jaw-continuous-movement">上、下；左、右 连续动作转换能力：</label>
+                    <select id="jaw-continuous-movement" class="medium-input">
+                        <option value="accurate">准确灵活</option>
+                        <option value="compensated">存在代偿</option>
+                        <option value="unable">无法完成</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label>语音状态下下颌分级控制能力评估：</label>
+                    <div class="assessment-row">
+                        <label for="jaw-control-two-level">两级：</label>
+                        <select id="jaw-control-two-level" class="medium-input">
+                            <option value="good">准确控制佳</option>
+                            <option value="poor">下颌分级控制能力欠佳</option>
+                            <option value="unable">无法完成</option>
+                        </select>
+                    </div>
+                    <div class="assessment-row">
+                        <label for="jaw-control-three-level">三级：</label>
+                        <select id="jaw-control-three-level" class="medium-input">
+                            <option value="good">准确控制佳</option>
+                            <option value="poor">下颌分级控制能力欠佳</option>
+                            <option value="unable">无法完成</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lip Assessment -->
+            <div id="lip-assessment" class="assessment-section">
+                <h3>唇功能评估</h3>
+                <div class="assessment-row">
+                    <label for="lip-strength">唇部肌力：</label>
+                    <select id="lip-strength" name="lip-strength">
+                        <option value="normal">正常</option>
+                        <option value="weak">偏弱</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label>模仿动作：</label>
+                    <div class="movement-grid">
+                        <div>
+                            闭合
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            圆唇
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            展唇
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            唇齿模式
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            翘唇
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            嘬唇
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="assessment-row">
+                    <label for="lip-alternating-movement">圆展交替运动</label>
+                    <select id="lip-alternating-movement" class="medium-input">
+                        <option value="accurate">准确灵活</option>
+                        <option value="compensated">存在代偿</option>
+                        <option value="unable">无法完成</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tongue Assessment -->
+            <div id="tongue-assessment" class="assessment-section">
+                <h3>舌功能评估</h3>
+                <div class="assessment-row">
+                    <label for="tongue-sensation">口腔触觉感知能力评估：</label>
+                    <select id="tongue-sensation" name="tongue-sensation">
+                        <option value="normal">正常</option>
+                        <option value="hyper">超敏</option>
+                        <option value="hypo">弱敏</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label for="tongue-movement-speed">舌的运动灵活性评估：</label>
+                    <select id="tongue-movement-speed" class="medium-input">
+                        <option value="normal">速度正常</option>
+                        <option value="slow">速度偏慢</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label>舌的运动能力：</label>
+                    <div class="movement-grid">
+                        <div>
+                            前
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            后
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            左
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            右
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            上
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            下
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌尖抵下齿
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌尖顶上齿
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌面上抬
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌两侧缘上抬
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌根上抬
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                        <div>
+                            舌叶上抬
+                            <select class="small-input">
+                                <option value="accurate">准确</option>
+                                <option value="compensated">存在代偿</option>
+                                <option value="unable">无法完成</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="assessment-row">
+                    <label for="tongue-gross-differentiation">舌的粗大运动分化程度：</label>
+                    <select id="tongue-gross-differentiation" class="large-input">
+                        <option value="fair">尚可</option>
+                        <option value="poor">欠佳</option>
+                        <option value="undifferentiated">未分化</option>
+                    </select>
+                </div>
+                <div class="assessment-row">
+                    <label for="tongue-fine-differentiation">舌的精细运动分化程度：</label>
+                    <select id="tongue-fine-differentiation" class="large-input">
+                        <option value="fair">尚可</option>
+                        <option value="poor">欠佳</option>
+                        <option value="undifferentiated">未分化</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Soft Palate Assessment -->
+            <div id="soft-palate-assessment" class="assessment-section">
+                <h3>软腭功能评估</h3>
+                <div class="form-group">
+                    <label for="soft-palate-function">软腭功能</label>
+                    <select id="soft-palate-function" class="large-input">
+                        <option value="good">腭咽闭合良好</option>
+                        <option value="poor">腭咽闭合较差</option>
+                        <option value="cleft">腭裂</option>
+                        <option value="submucous">隐性腭裂</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="assessment-buttons">
+                <button type="button" class="secondary-button" onclick="showPage('breathing')">返回</button>
+                <button type="submit" class="primary-button">继续评估</button>
+            </div>
+        </form>
+    </div>
+</div>
+        <!-- Articulation Function Page -->
+        <div id="articulation" class="page">
+            <div class="content-card">
+                <h2>构音功能</h2>
+                 <form id="articulationForm" onsubmit="saveArticulation(event)">
+            <div class="form-group">
+                <label for="sound-production">声母产生能力评估</label>
+                <select id="sound-production" class="consonant-input">
+                    <option value="正确">正确</option>
+                    <option value="欠佳">欠佳</option>
+                    <option value="错误">错误</option>
+                    <option value="可引导出">可引导出</option>
+                </select>
+    <div class="consonant-table">
+        <table class="assessment-table">
+            <thead>
+                <tr>
+                    <th>声母</th>
+                    <th>评估结果</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>b</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>p</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>m</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>f</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>d</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>t</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>n</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>l</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>g</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>k</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>h</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>j</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>q</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>zh</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ch</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>sh</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>r</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>z</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>c</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>s</td>
+                    <td>
+                        <select class="consonant-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+               
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="vowel-production">韵母产生能力评估</label>
+       <select id="vowel-production" class="vowel-input">
+                    <option value="正确">正确</option>
+                    <option value="欠佳">欠佳</option>
+                    <option value="错误">错误</option>
+                    <option value="可引导出">可引导出</option>
+                </select>
+    <div class="vowel-table">
+        <table class="assessment-table">
+            <thead>
+                <tr>
+                    <th>韵母</th>
+                    <th>评估结果</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>a</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>o</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>e</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>i</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>u</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ü</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ai</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ei</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ui</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ao</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ou</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>iu</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ie</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>üe</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>er</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>an</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>en</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>in</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>un</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ün</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ang</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>eng</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ing</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+                <tr>
+                    <td>ong</td>
+                    <td>
+                        <select class="vowel-input">
+                            <option value="正确">正确</option>
+                            <option value="欠佳">欠佳</option>
+                            <option value="错误">错误</option>
+                            <option value="可引导出">可引导出</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="remark-input"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+                    <div class="form-group">
+                        <label for="speech-rate">语速（词/分钟）</label>
+                        <input type="number" id="speech-rate" min="0" max="300" placeholder="输入每分钟的语音单词数">
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-rhythm">语音节律</label>
+                        <textarea id="speech-rhythm" placeholder="描述语音的节律和韵律，包括停顿和重音"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-intelligibility">语音可懂度</label>
+                        <select id="speech-intelligibility">
+                            <option value="">请选择</option>
+                            <option value="excellent">优秀</option>
+                            <option value="good">良好</option>
+                            <option value="fair">一般</option>
+                            <option value="poor">较差</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="voice-quality">声音质量</label>
+                        <textarea id="voice-quality" placeholder="描述声音质量，如嘶哑、鼻音过重等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="articulation-errors">构音错误走向</label>
+                        <textarea id="articulation-errors" placeholder="记录常见构音错误，如替代、遗漏、扭曲"></textarea>
+                    </div>
+                  
+                    <div class="form-group">
+                        <label for="prosody">语调</label>
+                        <textarea id="prosody" placeholder="描述语调的变化和使用"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="speech-effort">说话吃力程度</label>
+                        <textarea id="speech-effort" placeholder="描述在说话时的努力程度和疲劳感"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="secondary-button" onclick="showPage('oral-motor')">返回</button>
+                              <button type="submit" class="primary-button">继续评估</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Voice Assessment Page -->
+        <div id="voice-assessment" class="page">
+            <div class="content-card">
+                <h2>嗓音功能评估</h2>
+                <form id="voiceAssessmentForm" onsubmit="saveVoiceAssessment(event)">
+                    <div class="form-group">
+                        <label for="vocal-quality">嗓音质量</label>
+                        <textarea id="vocal-quality" placeholder="描述嗓音的质量，如清晰、沙哑、嘶哑等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="pitch">音高</label>
+                        <textarea id="pitch" placeholder="描述音高的稳定性和范围，如过高、过低、单调等"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="loudness">响度</label>
+                        <textarea id="loudness" placeholder="描述声音的响度，如音量不足、过大或不稳定"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="vocal-fatigue">嗓音疲劳</label>
+                        <textarea id="vocal-fatigue" placeholder="描述长时间说话后的嗓音疲劳情况"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="vocal-effort">发声努力程度</label>
+                        <textarea id="vocal-effort" placeholder="描述发声的努力程度和任何相关的不适"></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="secondary-button" onclick="showPage('articulation')">返回</button>
+                        <button type="submit" class="primary-button">完成评估</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Report Page -->
+        <div id="report" class="page">
+            <div class="content-card">
+                <h2>评估报告</h2>
+                <div id="reportContent">
+                    <!-- 评估报告将在此处生成 -->
+                </div>
+                <div class="button-group no-print">
+                    <button type="button" class="secondary-button" onclick="window.print()">打印报告</button>
+                    <button type="button" class="primary-button" onclick="showPage('start')">返回首页</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    const pages = document.querySelectorAll('.page');
+    const progressElement = document.getElementById('progress');
+    const progressText = document.getElementById('progress-text');
+
+   // 定义 showPage 函数
+    function showPage(pageId) {
+        // 隐藏所有页面
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+
+        // 显示指定页面
+        const pageToShow = document.getElementById(pageId);
+        if (pageToShow) {
+            pageToShow.classList.add('active');
+            updateProgress(pageId);
+        } else {
+            console.error('Page not found:', pageId);
+        }
+    }
+       // 更新进度条的函数
+    function updateProgress(pageId) {
+        const pageIndices = {
+            'start': 0,
+            'basic-info': 1,
+            'medical-history': 2,
+            'breathing': 3,
+            'oral-motor': 4,
+            'articulation': 5,
+            'voice-assessment': 6,
+            'report': 7
+        };
+        const totalSteps = Object.keys(pageIndices).length;
+        const currentStep = pageIndices[pageId];
+        const progress = (currentStep / totalSteps) * 100;
+        
+        const progressElement = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
+        
+        progressElement.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+    }
+
+    function saveBasicInfo(event) {
+        event.preventDefault();
+        const form = document.getElementById('basicInfoForm');
+        if (form.checkValidity()) {
+            showPage('medical-history');
+        } else {
+            form.reportValidity();
+        }
+    }
+
+    function saveMedicalHistory(event) {
+        event.preventDefault();
+        showPage('breathing');
+    }
+
+    function saveBreathing(event) {
+        event.preventDefault();
+        showPage('oral-motor');
+    }
+
+    function saveOralMotor(event) {
+        event.preventDefault();
+        showPage('articulation');
+    }
+
+    function saveArticulation(event) {
+        event.preventDefault();
+        showPage('voice-assessment');
+    }
+
+    function saveVoiceAssessment(event) {
+        event.preventDefault();
+        try {
+            generateReport();
+            showPage('report');
+        } catch (error) {
+            console.error('Error generating report:', error);
+            alert('生成报告时出现错误，请检查控制台以获取更多信息。');
+        }
+    }
+ 
+function generateReport() {
+    const reportContent = document.getElementById('reportContent');
+    
+    // 获取基本信息
+    const name = document.getElementById('name').value || '未填写';
+    const age = document.getElementById('age').value || '未填写'; 
+    const gender = document.getElementById('gender').value || '未填写';
+    const birthdate = document.getElementById('birthdate').value || '未填写';
+    const assessmentDate = new Date().toLocaleDateString('zh-CN');
+
+    // 获取病史信息
+    const problemOnset = document.getElementById('problem-onset').value || '未填写';
+    const pastTreatment = document.getElementById('past-treatment').value || '未填写';
+    const medicalDiagnosis = document.getElementById('medical-diagnosis').value || '未填写';
+    const treatmentGoals = document.getElementById('treatment-goals').value || '未填写';
+
+    // 获取呼吸功能评估结果
+    const breathingPattern = document.getElementById('breathing-pattern').value || '未填写';
+    const breathControl = document.getElementById('breath-control').value || '未填写';
+    const breathingCoordination = document.getElementById('breathing-coordination').value || '未填写';
+    const coughStrength = document.getElementById('cough-strength').value || '未填写';
+    const respiratorySymptoms = document.getElementById('respiratory-symptoms').value || '未填写';
+
+    // 获取口部运动评估结果
+    const jawAssessment = {
+        biteStrength: document.getElementById('bite-strength').value || '未评估',
+        movement: {
+            up: document.querySelector('#jaw-assessment .movement-grid select:nth-child(1)').value || '未评估',
+            down: document.querySelector('#jaw-assessment .movement-grid select:nth-child(2)').value || '未评估',
+            left: document.querySelector('#jaw-assessment .movement-grid select:nth-child(3)').value || '未评估',
+            right: document.querySelector('#jaw-assessment .movement-grid select:nth-child(4)').value || '未评估'
+        },
+        continuousMovement: document.getElementById('jaw-continuous-movement').value || '未评估',
+        controlTwoLevel: document.getElementById('jaw-control-two-level').value || '未评估',
+        controlThreeLevel: document.getElementById('jaw-control-three-level').value || '未评估'
+    };
+
+    const lipAssessment = {
+        strength: document.getElementById('lip-strength').value || '未评估',
+        movements: {
+            closure: document.querySelector('#lip-assessment .movement-grid select:nth-child(1)').value || '未评估',
+            rounding: document.querySelector('#lip-assessment .movement-grid select:nth-child(2)').value || '未评估',
+            spreading: document.querySelector('#lip-assessment .movement-grid select:nth-child(3)').value || '未评估',
+            lipTeeth: document.querySelector('#lip-assessment .movement-grid select:nth-child(4)').value || '未评估',
+            raising: document.querySelector('#lip-assessment .movement-grid select:nth-child(5)').value || '未评估',
+            puckering: document.querySelector('#lip-assessment .movement-grid select:nth-child(6)').value || '未评估'
+        },
+        alternatingMovement: document.getElementById('lip-alternating-movement').value || '未评估'
+    };
+
+    const tongueAssessment = {
+        sensation: document.getElementById('tongue-sensation').value || '未评估',
+        movementSpeed: document.getElementById('tongue-movement-speed').value || '未评估',
+        movements: {
+            forward: document.querySelector('#tongue-assessment .movement-grid select:nth-child(1)').value || '未评估',
+            backward: document.querySelector('#tongue-assessment .movement-grid select:nth-child(2)').value || '未评估',
+            left: document.querySelector('#tongue-assessment .movement-grid select:nth-child(3)').value || '未评估',
+            right: document.querySelector('#tongue-assessment .movement-grid select:nth-child(4)').value || '未评估',
+            up: document.querySelector('#tongue-assessment .movement-grid select:nth-child(5)').value || '未评估',
+            down: document.querySelector('#tongue-assessment .movement-grid select:nth-child(6)').value || '未评估',
+            tipToLowerTeeth: document.querySelector('#tongue-assessment .movement-grid select:nth-child(7)').value || '未评估',
+            tipToUpperTeeth: document.querySelector('#tongue-assessment .movement-grid select:nth-child(8)').value || '未评估',
+            dorsumRaising: document.querySelector('#tongue-assessment .movement-grid select:nth-child(9)').value || '未评估',
+            lateralEdgeRaising: document.querySelector('#tongue-assessment .movement-grid select:nth-child(10)').value || '未评估',
+            rootRaising: document.querySelector('#tongue-assessment .movement-grid select:nth-child(11)').value || '未评估',
+            bladeRaising: document.querySelector('#tongue-assessment .movement-grid select:nth-child(12)').value || '未评估'
+        },
+        grossDifferentiation: document.getElementById('tongue-gross-differentiation').value || '未评估',
+        fineDifferentiation: document.getElementById('tongue-fine-differentiation').value || '未评估'
+    };
+
+    const softPalateFunction = document.getElementById('soft-palate-function').value || '未评估';
+
+    // 获取构音功能评估结果
+    const consonantTable = createConsonantTable();
+    const vowelTable = createVowelTable();
+    const articulationStatistics = generateStatistics();
+    const otherArticulationInfo = generateOtherAssessmentInfo();
+
+    // 获取嗓音功能评估结果
+    const vocalQuality = document.getElementById('vocal-quality').value || '未填写';
+    const pitch = document.getElementById('pitch').value || '未填写';
+    const loudness = document.getElementById('loudness').value || '未填写';
+    const vocalFatigue = document.getElementById('vocal-fatigue').value || '未填写';
+    const vocalEffort = document.getElementById('vocal-effort').value || '未填写';
+
+    // 组装完整报告
+    reportContent.innerHTML = `
+        <div class="report-header" style="text-align: center; margin-bottom: 20px;">
+            <h2>言语功能评估报告</h2>
+        </div>
+           
+        <div class="report-section">
+            <h3>基本信息</h3>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>姓名：</strong>${name}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>性别：</strong>${gender === 'male' ? '男' : '女'}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>年龄：</strong>${age}岁</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>出生日期：</strong>${birthdate}</td>
+                    <td colspan="2" style="border: 1px solid #ddd; padding: 8px;"><strong>评估日期：</strong>${assessmentDate}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="report-section">
+            <h3>病史摘要</h3>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>问题出现时间：</strong>${problemOnset}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>既往治疗史：</strong>${pastTreatment}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>医学��断：</strong>${medicalDiagnosis}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>治疗目标：</strong>${treatmentGoals}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="report-section">
+            <h3>呼吸功能评估</h3>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>呼吸模式：</strong>${breathingPattern}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>呼吸支持能力：</strong>${breathControl}秒</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>呼吸与说话协调性：</strong>${breathingCoordination}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>咳嗽强度：</strong>${coughStrength}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>呼吸相关症状：</strong>${respiratorySymptoms}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="report-section">
+            <h3>口部运动功能评估</h3>
+            <h4>下颌功能</h4>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>咬肌肌力：</strong>${jawAssessment.biteStrength}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>运动能力：</strong>上：${jawAssessment.movement.up}，下：${jawAssessment.movement.down}，左：${jawAssessment.movement.left}，右：${jawAssessment.movement.right}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>连续动作转换能力：</strong>${jawAssessment.continuousMovement}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>下颌分级控制能力（两级）：</strong>${jawAssessment.controlTwoLevel}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>下颌分级控制能力（三级）：</strong>${jawAssessment.controlThreeLevel}</td>
+                </tr>
+            </table>
+
+            <h4>唇功能</h4>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>唇部肌力：</strong>${lipAssessment.strength}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>运动能力：</strong>闭合：${lipAssessment.movements.closure}，圆唇：${lipAssessment.movements.rounding}，展唇：${lipAssessment.movements.spreading}，唇齿模式：${lipAssessment.movements.lipTeeth}，翘唇：${lipAssessment.movements.raising}，嘬唇：${lipAssessment.movements.puckering}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>圆展交替运动：</strong>${lipAssessment.alternatingMovement}</td>
+                </tr>
+            </table>
+
+            <h4>舌功能</h4>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>口腔触觉感知能力：</strong>${tongueAssessment.sensation}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>舌的运动灵活性：</strong>${tongueAssessment.movementSpeed}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>舌的运动能力：</strong>前：${tongueAssessment.movements.forward}，后：${tongueAssessment.movements.backward}，左：${tongueAssessment.movements.left}，右：${tongueAssessment.movements.right}，上：${tongueAssessment.movements.up}，下：${tongueAssessment.movements.down}，舌尖抵下齿：${tongueAssessment.movements.tipToLowerTeeth}，舌尖顶上齿：${tongueAssessment.movements.tipToUpperTeeth}，舌面上抬：${tongueAssessment.movements.dorsumRaising}，舌两侧缘上抬：${tongueAssessment.movements.lateralEdgeRaising}，舌根上抬：${tongueAssessment.movements.rootRaising}，舌叶上抬：${tongueAssessment.movements.bladeRaising}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>舌的粗大运动分化程度：</strong>${tongueAssessment.grossDifferentiation}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>舌的精细运动分化程度：</strong>${tongueAssessment.fineDifferentiation}</td>
+                </tr>
+            </table>
+
+            <h4>软腭功能</h4>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>软腭功能：</strong>${softPalateFunction}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="report-section">
+            <h3>构音功能评估</h3>
+            ${articulationStatistics}
+            <h4>声母评估</h4>
+            ${consonantTable}
+            <h4>韵母评估</h4>
+            ${vowelTable}
+            ${otherArticulationInfo}
+        </div>
+
+        <div class="report-section">
+            <h3>嗓音功能评估</h3>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>嗓音质量：</strong>${vocalQuality}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>音高：</strong>${pitch}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>响度：</strong>${loudness}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>嗓音疲劳：</strong>${vocalFatigue}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><strong>发声努力程度：</strong>${vocalEffort}</td>
+                </tr>
+            </table>
+        </div>
+    `;
+}class AssessmentReport {
+    constructor() {
+        this.consonantResults = {};
+        this.vowelResults = {};
+    }
+
+    // 记录声母评估结果
+    recordConsonantResult(consonant, status) {
+        this.consonantResults[consonant] = status;
+    }
+
+    // 记录韵母评估结果
+    recordVowelResult(vowel, status) {
+        this.vowelResults[vowel] = status;
+    }
+
+    // 生成声母评估表格
+    generateConsonantTable() {
+        const consonants = [
+            ['b', 'p', 'm', 'f'],
+            ['d', 't', 'n', 'l'],
+            ['g', 'k', 'h'],
+            ['j', 'q', 'x'],
+            ['zh', 'ch', 'sh', 'r'],
+            ['z', 'c', 's']
+        ];
+
+        let tableHTML = '<table class="consonant-assessment-table">';
+        consonants.forEach(row => {
+            tableHTML += '<tr>';
+            row.forEach(consonant => {
+                const status = this.consonantResults[consonant] || 'unassessed';
+                const colorClass = this.getStatusColor(status);
+                
+                tableHTML += `
+                    <td class="${colorClass}">
+                        <div class="consonant-cell">
+                            <span class="consonant-label">${consonant}</span>
+                            <span class="status-indicator">${this.getStatusText(status)}</span>
+                        </div>
+                    </td>
+                `;
+            });
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</table>';
+        return tableHTML;
+    }
+
+    // 生成韵母评估表格
+    generateVowelTable() {
+        const vowels = [
+            ['a', 'o', 'e', 'i', 'u', 'ü'],
+            ['ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe'],
+            ['an', 'en', 'in', 'un', 'ün'],
+            ['ang', 'eng', 'ing', 'ong']
+        ];
+
+        let tableHTML = '<table class="vowel-assessment-table">';
+        vowels.forEach(row => {
+            tableHTML += '<tr>';
+            row.forEach(vowel => {
+                const status = this.vowelResults[vowel] || 'unassessed';
+                const colorClass = this.getStatusColor(status);
+                
+                tableHTML += `
+                    <td class="${colorClass}">
+                        <div class="vowel-cell">
+                            <span class="vowel-label">${vowel}</span>
+                            <span class="status-indicator">${this.getStatusText(status)}</span>
+                        </div>
+                    </td>
+                `;
+            });
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</table>';
+        return tableHTML;
+    }
+
+    // 根据状态获取颜色类
+    getStatusColor(status) {
+        switch(status) {
+            case 'correct': return 'status-green';
+            case 'incorrect': return 'status-red';
+            case 'suboptimal': return 'status-orange';
+            case 'guided': return 'status-pink';
+            default: return 'status-gray';
+        }
+    }
+
+    // 获取状态文本
+    getStatusText(status) {
+        switch(status) {
+            case 'correct': return '正确';
+            case 'incorrect': return '错误';
+            case 'suboptimal': return '欠佳';
+            case 'guided': return '可引导';
+            default: return '未评估';
+        }
+    }
+
+    // 生成完整评估报告
+    generateFullReport() {
+        return `
+            <div class="assessment-report">
+                <h2>构音评估报告</h2>
+                <div class="consonant-section">
+                    <h3>声母评估</h3>
+                    ${this.generateConsonantTable()}
+                </div>
+                <div class="vowel-section">
+                    <h3>韵母评估</h3>
+                    ${this.generateVowelTable()}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function createConsonantTable() {
+    const consonantSelects = document.querySelectorAll('.consonant-input');
+    let tableHTML = '<table style="width:100%; border-collapse: collapse; margin: 10px 0;">';
+    
+    // 声母分组
+    const consonantGroups = [
+        ['b', 'p', 'm', 'f'],
+        ['d', 't', 'n', 'l'],
+        ['g', 'k', 'h'],
+        ['j', 'q', 'x'],
+        ['zh', 'ch', 'sh', 'r'],
+        ['z', 'c', 's']
+    ];
+
+    consonantGroups.forEach(group => {
+        tableHTML += '<tr>';
+        group.forEach(consonant => {
+            const select = Array.from(consonantSelects).find(select => 
+                select.closest('tr')?.querySelector('td')?.textContent.trim() === consonant
+            );
+            const result = select ? select.value : '未评估';
+            const color = getResultColor(result);
+            
+            tableHTML += `
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: center; background-color: ${color}; color: white;">
+                    ${consonant}<br>${result}
+                </td>
+            `;
+        });
+        tableHTML += '</tr>';
+    });
+    
+    tableHTML += '</table>';
+    return tableHTML;
+}
+
+function createVowelTable() {
+    const vowelSelects = document.querySelectorAll('.vowel-input');
+    let tableHTML = '<table style="width:100%; border-collapse: collapse; margin: 10px 0;">';
+    
+    // 韵母分组
+    const vowelGroups = [
+        ['a', 'o', 'e', 'i', 'u', 'ü'],
+        ['ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe'],
+        ['an', 'en', 'in', 'un', 'ün'],
+        ['ang', 'eng', 'ing', 'ong']
+    ];
+
+    vowelGroups.forEach(group => {
+        tableHTML += '<tr>';
+        group.forEach(vowel => {
+            const select = Array.from(vowelSelects).find(select => 
+                select.closest('tr')?.querySelector('td')?.textContent.trim() === vowel
+            );
+            const result = select ? select.value : '未评估';
+            const color = getResultColor(result);
+            
+            tableHTML += `
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: center; background-color: ${color}; color: white;">
+                    ${vowel}<br>${result}
+                </td>
+            `;
+        });
+        tableHTML += '</tr>';
+    });
+    
+    tableHTML += '</table>';
+    return tableHTML;
+}
+function getResultColor(result) {
+    switch(result) {
+        case '正确':
+            return '#4CAF50'; // 绿色
+        case '欠佳':
+            return '#FF9800'; // 橙色
+        case '错误':
+            return '#F44336'; // 红色
+        case '可引导出':
+            return '#E91E63'; // 粉色
+        default:
+            return '#9E9E9E'; // 灰色（未评估）
+    }
+}
+
+
+// 添加评估结果统计功能
+function generateStatistics() {
+    const consonantInputs = document.querySelectorAll('.consonant-input');
+    const vowelInputs = document.querySelectorAll('.vowel-input');
+    
+    const stats = {
+        consonants: {
+            correct: 0,
+            poor: 0,
+            wrong: 0,
+            guidable: 0,
+            total: 0
+        },
+        vowels: {
+            correct: 0,
+            poor: 0,
+            wrong: 0,
+            guidable: 0,
+            total: 0
+        }
+    };
+    
+    // 统计声母
+    consonantInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            stats.consonants.total++;
+            switch(input.value) {
+                case '正确':
+                    stats.consonants.correct++;
+                    break;
+                case '欠佳':
+                    stats.consonants.poor++;
+                    break;
+                case '错误':
+                    stats.consonants.wrong++;
+                    break;
+                case '可引导出':
+                    stats.consonants.guidable++;
+                    break;
+            }
+        }
+    });
+    
+    // 统计韵母
+    vowelInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            stats.vowels.total++;
+            switch(input.value) {
+                case '正确':
+                    stats.vowels.correct++;
+                    break;
+                case '欠佳':
+                    stats.vowels.poor++;
+                    break;
+                case '错误':
+                    stats.vowels.wrong++;
+                    break;
+                case '可引导出':
+                    stats.vowels.guidable++;
+                    break;
+            }
+        }
+    });
+    
+    return `
+        <div class="statistics-section" style="margin-top: 30px;">
+            <h4>评估结果统计</h4>
+            <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px;">类别</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">正确</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">欠佳</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">错误</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">可引导出</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">总计</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">声母</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: green;">${stats.consonants.correct}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: orange;">${stats.consonants.poor}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: red;">${stats.consonants.wrong}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: pink;">${stats.consonants.guidable}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${stats.consonants.total}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">韵母</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: green;">${stats.vowels.correct}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: orange;">${stats.vowels.poor}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: red;">${stats.vowels.wrong}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: pink;">${stats.vowels.guidable}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${stats.vowels.total}</td>
+                </tr>
+            </table>
+        </div>
+    `;
+}
+
+// 修改原有的 generateReport 函数，添加统计信息
+function generateReport() {
+    const reportContent = document.getElementById('reportContent');
+    const assessmentDate = new Date().toLocaleDateString('zh-CN');
+    
+    const consonantTable = createConsonantTable();
+    const vowelTable = createVowelTable();
+    const statistics = generateStatistics();
+    const otherAssessmentInfo = generateOtherAssessmentInfo();
+    
+    reportContent.innerHTML = `
+        <div class="report-section">
+            <h3>构音功能评估报告</h3>
+            
+            ${statistics}
+            
+            <div class="consonant-assessment">
+                <h4>声母评估</h4>
+                ${consonantTable}
+            </div>
+            
+            <div class="vowel-assessment">
+                <h4>韵母评估</h4>
+                ${vowelTable}
+            </div>
+            
+            ${otherAssessmentInfo}
+        </div>
+    `;
+}
+function generateOtherAssessmentInfo() {
+    // 获取语速
+    const speechRate = document.getElementById('speech-rate')?.value || '未记录';
+    
+    // 获取语音节律
+    const speechRhythm = document.getElementById('speech-rhythm')?.value || '未记录';
+    
+    // 获取语音可懂度
+    const speechIntelligibility = document.getElementById('speech-intelligibility')?.value || '未记录';
+    
+    // 获取声音质量
+    const voiceQuality = document.getElementById('voice-quality')?.value || '未记录';
+    
+    // 获取构音错误
+    const articulationErrors = document.getElementById('articulation-errors')?.value || '未记录';
+    
+    // 获取语调
+    const prosody = document.getElementById('prosody')?.value || '未记录';
+    
+    // 获取说话努力程度
+    const speechEffort = document.getElementById('speech-effort')?.value || '未记录';
+
+    return `
+        <div class="other-assessment-info">
+            <h4>其他评估信息</h4>
+            <table style="width:100%; border-collapse: collapse; margin: 10px 0;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">评估项目</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">详细信息</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">语速（词/分钟）</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${speechRate}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">语音节律</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${speechRhythm}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">语音可懂度</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${getIntelligibilityText(speechIntelligibility)}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">声音质量</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${voiceQuality}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">构音错误</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${articulationErrors}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">语调</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${prosody}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">说话努力程度</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${speechEffort}</td>
+                </tr>
+            </table>
+        </div>
+    `;
+}
+
+function getIntelligibilityText(value) {
+    switch(value) {
+        case 'excellent': return '优秀';
+        case 'good': return '良好';
+        case 'fair': return '一般';
+        case 'poor': return '较差';
+        default: return '未记录';
+    }
+}
+
+
+    function showHistorySearch() {
+        document.getElementById('history-search').classList.remove('hidden');
+    }
+
+    function searchHistory() {
+        const searchInput = document.getElementById('search-input').value;
+        // This is where you would typically make an API call to fetch the data
+        // For this example, we'll use mock data
+        const mockResults = [
+            { id: 1, name: '张三', date: '2023-05-01' },
+            { id: 2, name: '李四', date: '2023-06-15' },
+            { id: 3, name: '王五', date: '2023-07-20' },
+        ];
+
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = '';
+
+        mockResults.forEach(result => {
+            const resultElement = document.createElement('div');
+            resultElement.className = 'history-item';
+            resultElement.innerHTML = `
+                <p><strong>姓名:</strong> ${result.name}</p>
+                <p><strong>评估日期:</strong> ${result.date}</p>
+                <button onclick="showHistoryDetails(${result.id})" class="secondary-button">显示详情</button>
+            `;
+            resultsContainer.appendChild(resultElement);
+        });
+    }
+
+    function showHistoryDetails(id) {
+        // This is where you would typically fetch the details for the specific assessment
+        // For this example, we'll just show an alert
+        alert(`显示评估ID ${id} 的详细信息`);
+    }
+
+    function printMedicalHistory() {
+        window.print();
+    }
+
+    // 在JavaScript中添加以下函数
+function showAssessmentSection(sectionId) {
+    // 隐藏所有评估部分
+    const sections = document.querySelectorAll('.assessment-section');
+    sections.forEach(section => section.style.display = 'none');
+    
+    // 显示指定的评估部分
+    const targetSection = document.getElementById(sectionId + '-assessment');
+    if (targetSection) {
+        targetSection.style.display = 'block';
+    }
+}
+
+  // 页面加载时的初始化
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('birthdate').value = today;
+        
+        // 显示所有评估部分
+        const sections = document.querySelectorAll('.assessment-section');
+        sections.forEach(section => section.style.display = 'block');
+    };
+    </script>
+</body>
+</html>
